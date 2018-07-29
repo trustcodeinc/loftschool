@@ -44,6 +44,8 @@ function sumWithDefaults(a, b) {
    returnFnResult(() => 'привет') вернет 'привет'
  */
 function returnFnResult(fn) {
+	var f = fn();
+	return f;
 }
 
 /*
@@ -59,7 +61,12 @@ function returnFnResult(fn) {
    console.log(f()); // выведет 12
    console.log(f()); // выведет 13
  */
-function returnCounter(number) {
+ 
+
+function returnCounter(number = 0) {
+	return function f(){
+		return ++number;
+	}
 }
 
 /*
@@ -71,7 +78,12 @@ function returnCounter(number) {
  Пример:
    returnArgumentsArray(1, 2, 3) вернет [1, 2, 3]
  */
-function returnArgumentsArray() {
+function returnArgumentsArray(){
+	var array = [];
+	for (var i = 0; i < arguments.length; i++) {
+	   array.push(arguments[i]);
+	};
+	return array;
 }
 
 /*
@@ -89,7 +101,10 @@ function returnArgumentsArray() {
 
    console.log(newSum()) выведет 6
  */
-function bindFunction(fn) {
+function bindFunction(fn){
+	return function fn(){
+		return fn.bind(null,arguments);
+	}
 }
 
 export {
