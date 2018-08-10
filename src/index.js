@@ -7,6 +7,9 @@
  Посмотрите как работает forEach и повторите это поведение для массива, который будет передан в параметре array
  */
 function forEach(array, fn) {
+    for (var i = 0; i < array.length; i++) {
+        fn(array[i], i, array);
+    }
 }
 
 /*
@@ -16,6 +19,13 @@ function forEach(array, fn) {
  Посмотрите как работает map и повторите это поведение для массива, который будет передан в параметре array
  */
 function map(array, fn) {
+    var newArray = [];
+
+    for (var i = 0; i < array.length; i++) {
+        newArray[i] = fn(array[i], i, array);
+    }
+
+    return newArray;
 }
 
 /*
@@ -25,6 +35,14 @@ function map(array, fn) {
  Посмотрите как работает reduce и повторите это поведение для массива, который будет передан в параметре array
  */
 function reduce(array, fn, initial) {
+    var x = initial || array[0],
+        i = initial ? 0 : 1;
+
+    for (; i < array.length; i++) {
+        x = fn(x, array[i], i, array);
+    }
+
+    return x;
 }
 
 /*
@@ -36,6 +54,15 @@ function reduce(array, fn, initial) {
    upperProps({ name: 'Сергей', lastName: 'Петров' }) вернет ['NAME', 'LASTNAME']
  */
 function upperProps(obj) {
+    let arr = [];
+
+    for (let i in obj) {
+        if (obj.hasOwnProperty(i)) {
+            arr.push(i.toUpperCase());
+        }
+    }
+
+    return arr;
 }
 
 /*
@@ -45,6 +72,44 @@ function upperProps(obj) {
  Посмотрите как работает slice и повторите это поведение для массива, который будет передан в параметре array
  */
 function slice(array, from, to) {
+    var result = [];
+
+    if (from < 0) {
+        from = array.length + from;
+    }
+
+    if (to < 0) {
+        to = array.length + to;
+    }
+
+    if (to > array.length) {
+        to = array.length;
+    }
+
+    if (to < 0) {
+        return [];
+    }
+
+    if (from < 0 && array.length + from < 0) {
+        from = 0;
+    }
+
+    if (from !== undefined && to !== undefined && from >= 0 && to >= 0) {
+        for (var i = from; i < to; i++) {
+            result.push(array[i]);
+        }
+
+        return result;
+    } else if (from !== undefined && to === undefined) {
+        for (i = from; i < array.length; i++) {
+            result.push(array[i]);
+        }
+
+        return result;
+    } else if (from === undefined && to === undefined) {
+
+        return array;
+    }
 }
 
 /*
@@ -54,6 +119,13 @@ function slice(array, from, to) {
  Proxy должен перехватывать все попытки записи значений свойств и возводить это значение в квадрат
  */
 function createProxy(obj) {
+    return new Proxy(obj, {
+        set(target, prop, value) {
+            target[prop] = value * value;
+
+            return true;
+        }
+    });
 }
 
 export {
