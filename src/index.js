@@ -11,10 +11,12 @@
    createDivWithText('loftschool') // создаст элемент div, поместит в него 'loftschool' и вернет созданный элемент
  */
 function createDivWithText(text) {
-    var div = document.createElement("div");
+    var div = document.createElement('div');
+
     div.innerHTML = text;
-	//document.body.appendChild(div);
-	return div;
+    // document.body.appendChild(div);
+
+    return div;
 }
 
 /*
@@ -23,10 +25,11 @@ function createDivWithText(text) {
  Функция должна вставлять элемент, переданный в переметре what в начало элемента, переданного в параметре where
 
  Пример:
-   prepend(document.querySelector('#one'), document.querySelector('#two')) // добавит элемент переданный первым аргументом в начало элемента переданного вторым аргументом
+   prepend(document.querySelector('#one'), document.querySelector('#two')) 
+   // добавит элемент переданный первым аргументом в начало элемента переданного вторым аргументом
  */
 function prepend(what, where) {
-	where.prepend(what);
+    where.prepend(what);
 }
 
 /*
@@ -34,7 +37,8 @@ function prepend(what, where) {
 
  3.1: Функция должна перебрать все дочерние элементы узла, переданного в параметре where
 
- 3.2: Функция должна вернуть массив, состоящий из тех дочерних элементов следующим соседом которых является элемент с тегом P
+ 3.2: Функция должна вернуть массив, состоящий из тех дочерних элементов следующим соседом которых является 
+ элемент с тегом P
 
  Пример:
    Представим, что есть разметка:
@@ -46,22 +50,38 @@ function prepend(what, where) {
       <p></p>
    </dody>
 
-   findAllPSiblings(document.body) // функция должна вернуть массив с элементами div и span т.к. следующим соседом этих элементов является элемент с тегом P
+   findAllPSiblings(document.body) // функция должна вернуть массив с элементами div и span т.к. 
+   следующим соседом этих элементов является элемент с тегом P
  */
 function findAllPSiblings(where) {
-	let arr = [];
-	for(let i = 0; i < where.children.length; i++){
-	  if(where.children[i].nodeName == 'P'){
-		arr.push(where.children[i - 1]);
-	  }
-	}
-	return arr;
+    /*
+    Не очень способ =)
+    
+    let arr = [];
+    for(let i = 0; i < where.children.length; i++){
+      if(where.children[i].nodeName == 'P'){
+        arr.push(where.children[i - 1]);
+      }
+    }
+    return arr;
+    */
+    
+    let arr = [];
+
+    for (let item of where.children) {
+        if (item.nodeName == 'P') {
+            arr.push(item.previousElementSibling);
+        }
+    }
+
+    return arr;
 }
 
 /*
  Задание 4:
 
- Функция представленная ниже, перебирает все дочерние узлы типа "элемент" внутри узла переданного в параметре where и возвращает массив из текстового содержимого найденных элементов
+ Функция представленная ниже, перебирает все дочерние узлы типа "элемент" внутри узла переданного 
+ в параметре where и возвращает массив из текстового содержимого найденных элементов
  Но похоже, что в код функции закралась ошибка и она работает не так, как описано.
 
  Необходимо найти и исправить ошибку в коде так, чтобы функция работала так, как описано выше.
@@ -98,12 +118,18 @@ function findError(where) {
    должно быть преобразовано в <div></div><p></p>
  */
 function deleteTextNodes(where) {
+    for ( let item of where.childNodes ) {
+        if ( item.nodeType === 3 ) {
+            item.remove();
+        }
+    }
 }
 
 /*
  Задание 6:
 
- Выполнить предудыщее задание с использование рекурсии - то есть необходимо заходить внутрь каждого дочернего элемента (углубляться в дерево)
+ Выполнить предудыщее задание с использование рекурсии - то есть необходимо заходить внутрь 
+ каждого дочернего элемента (углубляться в дерево)
 
  Задачу необходимо решить без использования рекурсии, то есть можно не уходить вглубь дерева.
  Так же будьте внимательны при удалении узлов, т.к. можно получить неожиданное поведение при переборе узлов
@@ -113,6 +139,16 @@ function deleteTextNodes(where) {
    должно быть преобразовано в <span><div><b></b></div><p></p></span>
  */
 function deleteTextNodesRecursive(where) {
+    for ( let item of [...where.childNodes] ) {
+        if ( item.childNodes.length ) {
+            deleteTextNodesRecursive( item );
+        } else if ( item.nodeType === 1 ) {
+            item.textContent = '';
+        }
+        if ( item.nodeType === 3 ) {
+            item.remove();
+        }
+    }
 }
 
 /*
@@ -136,6 +172,32 @@ function deleteTextNodesRecursive(where) {
    }
  */
 function collectDOMStat(root) {
+    let result = {
+        tags: {},
+        classes: {},
+        texts: 0
+    };
+
+    function recurs(root) {
+        for ( const item of root.childNodes ) {
+            if (item.nodeType === 1) {
+                result.tags[item.tagName] = (result.tags[item.tagName] || 0) + 1;
+                for (const cls of item.classList) {
+                    result.classes[cls] = (result.classes[cls] || 0) + 1;
+                }
+            } else if (item.nodeType === 3) {
+                ++result.texts;
+            }
+
+            if (item.childNodes.length) {
+                recurs(item);
+            }
+        }
+    }
+
+    recurs(root);
+
+    return result;
 }
 
 /*
@@ -171,6 +233,30 @@ function collectDOMStat(root) {
    }
  */
 function observeChildNodes(where, fn) {
+    var observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            if (mutation.type == 'childList') {
+                if (mutation.addedNodes.length) {
+                    fn(
+                        {
+                            type: 'insert',
+                            nodes: [...mutation.addedNodes]
+                        }
+                    );
+                }
+                if (mutation.removedNodes.length) {
+                    fn(
+                        {
+                            type: 'remove',
+                            nodes: [...mutation.removedNodes]
+                        }
+                    );
+                }
+            }
+        });
+    });
+
+    observer.observe(where, { childList: true, subtree: true });
 }
 
 export {
